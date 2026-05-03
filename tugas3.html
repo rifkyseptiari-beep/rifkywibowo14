@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linear Regression - Study Hours vs Exam Score</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1a237e;
+            --primary-light: #e8eaf6;
+            --secondary: #3949ab;
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+        }
+
+        html, body { height: 100%; margin: 0; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--bg-body); 
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            padding-top: 70px; 
+        }
+
+        .navbar {
+            position: fixed; top: 0; width: 100%; background: var(--bg-card);
+            border-bottom: 1px solid var(--border); padding: 0 25px; height: 60px;
+            z-index: 1000; display: flex; align-items: center; justify-content: space-between;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05); box-sizing: border-box;
+        }
+        .nav-item { text-decoration: none; color: var(--primary); font-weight: 600; font-size: 14px; }
+
+        .content-wrapper { flex: 1 0 auto; padding: 20px; }
+        .container { max-width: 960px; margin: 0 auto; }
+        
+        .card { 
+            background: var(--bg-card); border-radius: 12px; padding: 25px; 
+            margin-bottom: 25px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border);
+        }
+
+        h1 { text-align: center; color: var(--primary); margin-bottom: 30px; font-weight: 700; }
+        h2 { font-size: 1.1rem; color: var(--primary); border-left: 4px solid var(--primary); padding-left: 12px; margin-bottom: 20px; }
+
+        canvas { width: 100%; border: 1px solid var(--border); border-radius: 8px; background: #ffffff; }
+        
+        .input-box { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        input[type=number] { padding: 12px; border: 2px solid var(--primary); border-radius: 8px; font-size: 15px; width: 160px; outline: none; }
+        
+        button { background: var(--primary); color: white; padding: 12px 25px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; }
+
+        .result { background: var(--primary-light); padding: 18px; border-radius: 8px; margin-top: 15px; font-size: 16px; color: var(--primary); border: 1px solid var(--primary); line-height: 1.6; }
+
+        .metrics { display: flex; gap: 15px; flex-wrap: wrap; margin-top: 10px; }
+        .metric-box { background: #f8fafc; border-left: 4px solid var(--primary); padding: 12px 16px; border-radius: 6px; flex: 1; min-width: 160px; border: 1px solid var(--border); }
+        .metric-box .label { font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
+        .metric-box .val { font-size: 18px; font-weight: bold; color: var(--primary); margin-top: 4px; }
+
+        .table-wrapper { overflow-x: auto; border-radius: 8px; border: 1px solid var(--border); margin-top: 10px; }
+        table { width: 100%; border-collapse: collapse; background: white; font-size: 13px; }
+        th { background: var(--primary); color: white; padding: 12px; }
+        td { border-bottom: 1px solid var(--border); padding: 10px; text-align: center; }
+
+        .footer { flex-shrink: 0; background: #ffffff; border-top: 1px solid var(--border); padding: 25px 20px; text-align: center; color: var(--text-muted); font-size: 13px; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="index.html" class="nav-item">Home</a>
+    </nav>
+
+    <div class="content-wrapper">
+        <div class="container">
+            <h1>Student Grade Prediction System</h1>
+
+            <div class="card">
+                <h2>Regression Chart (Study Hours vs Exam Score)</h2>
+                <canvas id="chart" width="800" height="400"></canvas>
+            </div>
+
+            <div class="card">
+                <h2>Predict Score by Study Hours</h2>
+                <div class="input-box">
+                    <input type="number" id="inputX" value="5" step="0.5">
+                    <button onclick="predict()">Calculate Prediction</button>
+                </div>
+                <div id="predResult" class="result"></div>
+            </div>
+
+            <div class="card">
+                <h2>Model Evaluation Metrics</h2>
+                <div id="metrics" class="metrics"></div>
+            </div>
+
+            <div class="card">
+                <h2>Dataset & Detailed Predictions</h2>
+                <div class="table-wrapper">
+                    <table id="dataTable"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+   
+    </div>
+
+<script>
+    // DATASET: X = Study Hours, Y = Exam Score
+    const data = [
+        [1, 45], [2, 52], [3, 61], [5, 70],
+        [6, 78], [8, 85], [10, 92], [12, 98]
+    ];
+
+    function linearRegression(data) {
+        let n = data.length;
+        let sx = data.reduce((s, d) => s + d[0], 0);
+        let sy = data.reduce((s, d) => s + d[1], 0);
+        let sxy = data.reduce((s, d) => s + d[0] * d[1], 0);
+        let sx2 = data.reduce((s, d) => s + d[0] * d[0], 0);
+        
+        let b = (n * sxy - sx * sy) / (n * sx2 - sx * sx);
+        let a = (sy - b * sx) / n;
+        return { a, b };
+    }
+
+    function evaluate(data, a, b) {
+        let n = data.length;
+        let yMean = data.reduce((s, d) => s + d[1], 0) / n;
+        let ssRes = data.reduce((s, d) => s + Math.pow(d[1] - (a + b * d[0]), 2), 0);
+        let ssTot = data.reduce((s, d) => s + Math.pow(d[1] - yMean, 2), 0);
+        let mse = ssRes / n;
+        let r2 = 1 - (ssRes / ssTot);
+        return { mse, rmse: Math.sqrt(mse), r2 };
+    }
+
+    const reg = linearRegression(data);
+    const ev = evaluate(data, reg.a, reg.b);
+
+    function drawChart(a, b, highlightX = null) {
+        const canvas = document.getElementById("chart");
+        const ctx = canvas.getContext("2d");
+        const W = canvas.width, H = canvas.height, pad = 60;
+        
+        let xMax = 15, yMax = 110; 
+        const sx = (x) => pad + (x / xMax) * (W - 2 * pad);
+        const sy = (y) => H - pad - (y / yMax) * (H - 2 * pad);
+
+        ctx.clearRect(0, 0, W, H);
+        ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, W, H);
+
+        // Grid Lines
+        ctx.strokeStyle = "#f1f5f9"; ctx.lineWidth = 1;
+        ctx.fillStyle = "#94a3b8"; ctx.font = "10px Inter";
+        for (let i = 0; i <= 10; i++) {
+            let y = i * 10;
+            ctx.beginPath(); ctx.moveTo(pad, sy(y)); ctx.lineTo(W - pad, sy(y)); ctx.stroke();
+            ctx.fillText(y, 25, sy(y) + 4);
+        }
+
+        // Regression Line
+        ctx.strokeStyle = "#1a237e"; ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(sx(0), sy(a));
+        ctx.lineTo(sx(xMax), sy(a + b * xMax));
+        ctx.stroke();
+
+        // Data Points
+        data.forEach(d => {
+            ctx.beginPath(); ctx.arc(sx(d[0]), sy(d[1]), 6, 0, Math.PI * 2);
+            ctx.fillStyle = "#3949ab"; ctx.fill();
+            ctx.fillStyle = "#1e293b"; ctx.fillText((${d[0]}h, ${d[1]}), sx(d[0]) + 8, sy(d[1]));
+        });
+
+        // Prediction Marker
+        if (highlightX !== null) {
+            let py = a + b * highlightX;
+            ctx.beginPath(); ctx.arc(sx(highlightX), sy(py), 10, 0, Math.PI * 2);
+            ctx.fillStyle = "#ff1744"; ctx.fill();
+            ctx.strokeStyle = "white"; ctx.lineWidth = 3; ctx.stroke();
+            ctx.fillStyle = "#ff1744"; ctx.font = "bold 12px Inter";
+            ctx.fillText("📍 Predicted Score", sx(highlightX) - 45, sy(py) - 20);
+        }
+    }
+
+    function predict() {
+        let x = parseFloat(document.getElementById("inputX").value);
+        if (isNaN(x)) return;
+        let y = reg.a + (reg.b * x);
+        if (y > 100) y = 100; 
+        
+        document.getElementById("predResult").innerHTML = `
+            <strong>Predicted Score: ${y.toFixed(2)}</strong><br>
+            <span style="font-size: 14px; font-weight: normal;">
+                Formula: Y = ${reg.a.toFixed(4)} + (${reg.b.toFixed(4)} * ${x})
+            </span>
+        `;
+        drawChart(reg.a, reg.b, x);
+    }
+
+    // Display Metrics
+    document.getElementById("metrics").innerHTML = `
+        <div class="metric-box"><div class="label">MSE</div><div class="val">${ev.mse.toFixed(4)}</div></div>
+        <div class="metric-box"><div class="label">RMSE</div><div class="val">${ev.rmse.toFixed(4)}</div></div>
+        <div class="metric-box"><div class="label">R-Squared</div><div class="val">${(ev.r2 * 100).toFixed(2)}%</div></div>
+        <div class="metric-box"><div class="label">Slope (b)</div><div class="val">${reg.b.toFixed(4)}</div></div>
+        <div class="metric-box"><div class="label">Intercept (a)</div><div class="val">${reg.a.toFixed(4)}</div></div>
+    `;
+
+    // Display Table
+    let tHtml = "<thead><tr><th>No</th><th>Study Hours (X)</th><th>Actual Score (Y)</th><th>Predicted (Y')</th><th>Error</th></tr></thead><tbody>";
+    data.forEach((d, i) => {
+        let p = reg.a + reg.b * d[0];
+        tHtml += <tr><td>${i+1}</td><td>${d[0]} hours</td><td>${d[1]}</td><td>${p.toFixed(2)}</td><td>${Math.abs(d[1]-p).toFixed(2)}</td></tr>;
+    });
+    document.getElementById("dataTable").innerHTML = tHtml + "</tbody>";
+
+    drawChart(reg.a, reg.b);
+    predict();
+</script>
+</body>
+</html>
