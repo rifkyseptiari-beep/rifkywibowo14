@@ -1,240 +1,631 @@
 <!DOCTYPE html>
-<html lang="id"><head>
+<html lang="id">
+<head>
 <meta charset="UTF-8">
-<title>Pengolahan Citra - Computer Vision</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Pengolahan Citra Digital</title>
+
 <style>
-body { font-family:Arial,sans-serif; max-width:960px;
-margin:0 auto; padding:20px; background:#f4f6f9; }
-h1 { color:#1a237e; text-align:center; }
-.card { background:white; border-radius:12px; padding:20px;
-margin-bottom:18px; box-shadow:0 2px 8px rgba(0,0,0,0.1); }
-.btn-group { display:flex; flex-wrap:wrap; gap:8px; margin:12px 0; }
-button { padding:9px 16px; border:none; border-radius:7px;
-cursor:pointer; font-size:13px; font-weight:bold;
-background:#1a237e; color:white; transition:opacity .2s; }
-button:hover { opacity:0.85; }
-button.active { background:#1a237e; }
-canvas { max-width:100%; border-radius:8px; border:2px solid #eee; }
-.canvas-row { display:flex; gap:16px; flex-wrap:wrap; }
-.canvas-box { flex:1; min-width:240px; text-align:center; }
-.canvas-box p { font-size:12px; color:#555; margin-bottom:6px; font-weight:bold; }
-input[type=range] { width:160px; }
-.pixel-info { background:#ffebee; border:1px solid #ef9a9a;
-border-radius:6px; padding:8px 14px; font-size:12px;
-margin-top:10px; font-family:monospace; }
-.hist-canvas { width:100%; height:120px; }
+
+/* RESET */
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+/* BODY */
+body{
+    font-family:"Times New Roman", serif;
+    background:#f4ecd8;
+    color:#3e2f1c;
+    padding:20px;
+}
+
+/* NAVBAR */
+.navbar{
+    background:#5c4033;
+    padding:15px;
+    border-radius:8px;
+    text-align:center;
+    margin-bottom:20px;
+}
+
+.navbar a{
+    color:white;
+    text-decoration:none;
+    font-size:18px;
+}
+
+.navbar a:hover{
+    text-decoration:underline;
+}
+
+/* TITLE */
+h1{
+    text-align:center;
+    color:#5c4033;
+    margin-bottom:25px;
+}
+
+/* CARD */
+.card{
+    background:#fffaf0;
+    border:2px solid #c2a27c;
+    border-radius:10px;
+    padding:20px;
+    margin-bottom:20px;
+
+    box-shadow:4px 4px 10px rgba(0,0,0,0.15);
+}
+
+/* SUBTITLE */
+h2{
+    color:#5c4033;
+    margin-bottom:15px;
+}
+
+/* BUTTON */
+.btn-group{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin:15px 0;
+}
+
+button{
+    background:#5c4033;
+    color:white;
+    padding:10px 15px;
+    border:none;
+    border-radius:5px;
+    cursor:pointer;
+    font-size:14px;
+}
+
+button:hover{
+    background:#3e2f1c;
+}
+
+/* INPUT RANGE */
+input[type=range]{
+    width:180px;
+}
+
+/* CANVAS */
+canvas{
+    max-width:100%;
+    border:2px solid #c2a27c;
+    border-radius:8px;
+    background:white;
+}
+
+/* CANVAS ROW */
+.canvas-row{
+    display:flex;
+    gap:20px;
+    flex-wrap:wrap;
+}
+
+.canvas-box{
+    flex:1;
+    min-width:250px;
+    text-align:center;
+}
+
+.canvas-box p{
+    margin-bottom:10px;
+    font-weight:bold;
+    color:#5c4033;
+}
+
+/* PIXEL INFO */
+.pixel-info{
+    background:#f3e5d0;
+    border-left:5px solid #5c4033;
+    padding:12px;
+    margin-top:15px;
+    border-radius:6px;
+
+    font-family:monospace;
+    font-size:14px;
+}
+
+/* HISTOGRAM */
+.hist-canvas{
+    width:100%;
+    height:120px;
+}
+
+/* TEXT */
+#imgInfo{
+    margin-top:10px;
+    color:#6d4c41;
+}
+
 </style>
 </head>
+
 <body>
 
-<nav class="navbar">
-        <a href="index.html" class="nav-item">Home</a>
-</nav>
+<!-- NAVBAR -->
+<div class="navbar">
+    <a href="index.html">Beranda</a>
+</div>
 
+<!-- TITLE -->
 <h1>Pengolahan Citra Digital - Computer Vision</h1>
- 
+
+<!-- UPLOAD -->
 <div class="card">
-<h2>Upload Gambar</h2>
-<input type="file" id="fileInput" accept="image/*">
-<p id="imgInfo" style="color:#888;font-size:12px;margin-top:6px"></p>
+
+    <h2>Upload Gambar</h2>
+
+    <input
+        type="file"
+        id="fileInput"
+        accept="image/*"
+    >
+
+    <p id="imgInfo"></p>
+
 </div>
- 
+
+<!-- FILTER -->
 <div class="card">
-<h2>Filter Gambar</h2>
-<div class="btn-group">
-<button onclick="applyFilter('original')">Original</button>
-<button onclick="applyFilter('grayscale')">Grayscale</button>
-<button onclick="applyFilter('invert')">Invert</button>
-<button onclick="applyFilter('sepia')">Sepia</button>
-<button onclick="applyFilter('blur')">Blur</button>
-<button onclick="applyFilter('edge')">Edge Detection</button>
-<button onclick="applyFilter('emboss')">Emboss</button>
-<button onclick="applyFilter('sharpen')">Sharpen</button>
+
+    <h2>Filter Gambar</h2>
+
+    <div class="btn-group">
+
+        <button onclick="applyFilter('original')">
+            Original
+        </button>
+
+        <button onclick="applyFilter('grayscale')">
+            Grayscale
+        </button>
+
+        <button onclick="applyFilter('invert')">
+            Invert
+        </button>
+
+        <button onclick="applyFilter('sepia')">
+            Sepia
+        </button>
+
+        <button onclick="applyFilter('blur')">
+            Blur
+        </button>
+
+        <button onclick="applyFilter('edge')">
+            Edge Detection
+        </button>
+
+        <button onclick="applyFilter('emboss')">
+            Emboss
+        </button>
+
+        <button onclick="applyFilter('sharpen')">
+            Sharpen
+        </button>
+
+    </div>
+
+    <br>
+
+    <label>
+        Brightness :
+
+        <input
+            type="range"
+            id="brightnessSlider"
+            min="-100"
+            max="100"
+            value="0"
+            oninput="applyFilter('brightness')"
+        >
+
+        <span id="brightnessVal">0</span>
+
+    </label>
+
+    <br><br>
+
+    <label>
+        Contrast :
+
+        <input
+            type="range"
+            id="contrastSlider"
+            min="-100"
+            max="100"
+            value="0"
+            oninput="applyFilter('contrast')"
+        >
+
+        <span id="contrastVal">0</span>
+
+    </label>
+
 </div>
-<label>Brightness: <input type="range" id="brightnessSlider"
-min="-100" max="100" value="0" oninput="applyFilter('brightness')">
-<span id="brightnessVal">0</span></label>&nbsp;&nbsp;
-<label>Contrast: <input type="range" id="contrastSlider"
-min="-100" max="100" value="0" oninput="applyFilter('contrast')">
-<span id="contrastVal">0</span></label>
-</div>
- 
+
+<!-- IMAGE -->
 <div class="card">
-<h2>Tampilan Citra</h2>
-<div class="canvas-row">
-<div class="canvas-box">
-<p>Gambar Asli</p>
-<canvas id="originalCanvas"></canvas>
+
+    <h2>Tampilan Citra</h2>
+
+    <div class="canvas-row">
+
+        <div class="canvas-box">
+
+            <p>Gambar Asli</p>
+
+            <canvas id="originalCanvas"></canvas>
+
+        </div>
+
+        <div class="canvas-box">
+
+            <p>
+                Hasil Filter :
+                <span id="filterName">-</span>
+            </p>
+
+            <canvas id="filteredCanvas"></canvas>
+
+        </div>
+
+    </div>
+
+    <div class="pixel-info" id="pixelInfo">
+
+        Hover pada gambar untuk melihat nilai RGB
+
+    </div>
+
 </div>
-<div class="canvas-box">
-<p>Hasil Filter: <span id="filterName">-</span></p>
-<canvas id="filteredCanvas"></canvas>
-</div>
-</div>
-<div class="pixel-info" id="pixelInfo">
-Hover di atas gambar hasil filter untuk melihat nilai piksel RGB
-</div>
-</div>
- 
+
+<!-- HISTOGRAM -->
 <div class="card">
-<h2>Histogram RGB</h2>
-<canvas id="histCanvas" class="hist-canvas" width="700" height="120"></canvas>
+
+    <h2>Histogram RGB</h2>
+
+    <canvas
+        id="histCanvas"
+        class="hist-canvas"
+        width="700"
+        height="120"
+    ></canvas>
+
 </div>
- 
+
 <script>
+
 let origImageData = null;
-const origCanvas = document.getElementById("originalCanvas");
-const filtCanvas = document.getElementById("filteredCanvas");
-const origCtx = origCanvas.getContext("2d");
-const filtCtx = filtCanvas.getContext("2d");
- 
-// Upload gambar
-document.getElementById("fileInput").onchange = function(e) {
-let img = new Image();
-let url = URL.createObjectURL(e.target.files[0]);
-img.onload = function() {
-let maxW = 420, scale = Math.min(1, maxW/img.width);
-let w = Math.round(img.width*scale), h = Math.round(img.height*scale);
-origCanvas.width = filtCanvas.width = w;
-origCanvas.height = filtCanvas.height = h;
-origCtx.drawImage(img, 0, 0, w, h);
-origImageData = origCtx.getImageData(0, 0, w, h);
-filtCtx.putImageData(origImageData, 0, 0);
-document.getElementById("imgInfo").textContent =
-"Ukuran: "+w+" x "+h+" piksel | Total piksel: "+(w*h).toLocaleString();
-drawHistogram(origImageData);
+
+const origCanvas =
+document.getElementById("originalCanvas");
+
+const filtCanvas =
+document.getElementById("filteredCanvas");
+
+const origCtx =
+origCanvas.getContext("2d");
+
+const filtCtx =
+filtCanvas.getContext("2d");
+
+// UPLOAD IMAGE
+document.getElementById("fileInput").onchange =
+function(e){
+
+    let img = new Image();
+
+    let url =
+    URL.createObjectURL(e.target.files[0]);
+
+    img.onload = function(){
+
+        let maxW = 420;
+
+        let scale =
+        Math.min(1, maxW/img.width);
+
+        let w =
+        Math.round(img.width*scale);
+
+        let h =
+        Math.round(img.height*scale);
+
+        origCanvas.width =
+        filtCanvas.width = w;
+
+        origCanvas.height =
+        filtCanvas.height = h;
+
+        origCtx.drawImage(img,0,0,w,h);
+
+        origImageData =
+        origCtx.getImageData(0,0,w,h);
+
+        filtCtx.putImageData(
+            origImageData,
+            0,
+            0
+        );
+
+        document.getElementById("imgInfo").innerHTML =
+
+        "Ukuran Gambar : " +
+        w + " x " + h +
+        " piksel";
+
+        drawHistogram(origImageData);
+
+    };
+
+    img.src = url;
+
 };
-img.src = url;
-};
- 
-// Fungsi konvolusi 3x3
-function convolve(data, w, h, kernel) {
-let out = new Uint8ClampedArray(data.length);
-for(let y=1;y<h-1;y++) for(let x=1;x<w-1;x++) {
-let r=0,g=0,b=0,idx=0;
-for(let ky=-1;ky<=1;ky++) for(let kx=-1;kx<=1;kx++) {
-idx = ((y+ky)*w+(x+kx))*4;
-let kv = kernel[(ky+1)*3+(kx+1)];
-r+=data[idx]*kv; g+=data[idx+1]*kv; b+=data[idx+2]*kv;
+
+// CONVOLUTION
+function convolve(data,w,h,kernel){
+
+    let out =
+    new Uint8ClampedArray(data.length);
+
+    for(let y=1;y<h-1;y++){
+
+        for(let x=1;x<w-1;x++){
+
+            let r=0,g=0,b=0;
+
+            for(let ky=-1;ky<=1;ky++){
+
+                for(let kx=-1;kx<=1;kx++){
+
+                    let idx =
+                    ((y+ky)*w+(x+kx))*4;
+
+                    let kv =
+                    kernel[(ky+1)*3+(kx+1)];
+
+                    r += data[idx]*kv;
+                    g += data[idx+1]*kv;
+                    b += data[idx+2]*kv;
+
+                }
+
+            }
+
+            let i = (y*w+x)*4;
+
+            out[i] =
+            Math.min(255,Math.max(0,r));
+
+            out[i+1] =
+            Math.min(255,Math.max(0,g));
+
+            out[i+2] =
+            Math.min(255,Math.max(0,b));
+
+            out[i+3] = data[i+3];
+
+        }
+
+    }
+
+    return out;
+
 }
-let i=(y*w+x)*4;
-out[i]=Math.min(255,Math.max(0,r));
-out[i+1]=Math.min(255,Math.max(0,g));
-out[i+2]=Math.min(255,Math.max(0,b));
-out[i+3]=data[i+3];
+
+// APPLY FILTER
+function applyFilter(type){
+
+    if(!origImageData){
+
+        alert("Upload gambar terlebih dahulu!");
+
+        return;
+
+    }
+
+    let src = origImageData.data;
+
+    let w = origCanvas.width;
+    let h = origCanvas.height;
+
+    let out = new ImageData(
+        new Uint8ClampedArray(src),
+        w,
+        h
+    );
+
+    let d = out.data;
+
+    document.getElementById("filterName").textContent =
+    type;
+
+    if(type==="grayscale"){
+
+        for(let i=0;i<d.length;i+=4){
+
+            let g =
+            0.299*d[i] +
+            0.587*d[i+1] +
+            0.114*d[i+2];
+
+            d[i]=d[i+1]=d[i+2]=g;
+
+        }
+
+    }
+
+    else if(type==="invert"){
+
+        for(let i=0;i<d.length;i+=4){
+
+            d[i]=255-d[i];
+            d[i+1]=255-d[i+1];
+            d[i+2]=255-d[i+2];
+
+        }
+
+    }
+
+    else if(type==="sepia"){
+
+        for(let i=0;i<d.length;i+=4){
+
+            let r=d[i];
+            let g=d[i+1];
+            let b=d[i+2];
+
+            d[i]=Math.min(255,r*.393+g*.769+b*.189);
+
+            d[i+1]=Math.min(255,r*.349+g*.686+b*.168);
+
+            d[i+2]=Math.min(255,r*.272+g*.534+b*.131);
+
+        }
+
+    }
+
+    else if(type==="brightness"){
+
+        let v =
+        parseInt(
+        document.getElementById("brightnessSlider").value
+        );
+
+        document.getElementById("brightnessVal").textContent = v;
+
+        for(let i=0;i<d.length;i+=4){
+
+            d[i]+=v;
+            d[i+1]+=v;
+            d[i+2]+=v;
+
+        }
+
+    }
+
+    else if(type==="contrast"){
+
+        let v =
+        parseInt(
+        document.getElementById("contrastSlider").value
+        );
+
+        document.getElementById("contrastVal").textContent = v;
+
+        let f =
+        (259*(v+255))/(255*(259-v));
+
+        for(let i=0;i<d.length;i+=4){
+
+            d[i]=f*(d[i]-128)+128;
+            d[i+1]=f*(d[i+1]-128)+128;
+            d[i+2]=f*(d[i+2]-128)+128;
+
+        }
+
+    }
+
+    filtCtx.putImageData(out,0,0);
+
+    drawHistogram(out);
+
 }
-return out;
+
+// HISTOGRAM
+function drawHistogram(imageData){
+
+    let hc =
+    document.getElementById("histCanvas");
+
+    let hx =
+    hc.getContext("2d");
+
+    let rH = new Array(256).fill(0);
+    let gH = new Array(256).fill(0);
+    let bH = new Array(256).fill(0);
+
+    for(let i=0;i<imageData.data.length;i+=4){
+
+        rH[imageData.data[i]]++;
+        gH[imageData.data[i+1]]++;
+        bH[imageData.data[i+2]]++;
+
+    }
+
+    let maxV =
+    Math.max(...rH,...gH,...bH);
+
+    hx.clearRect(0,0,hc.width,hc.height);
+
+    [[rH,"rgba(220,50,50,0.5)"],
+     [gH,"rgba(50,180,50,0.5)"],
+     [bH,"rgba(50,100,220,0.5)"]]
+
+    .forEach(([arr,col])=>{
+
+        hx.fillStyle = col;
+
+        arr.forEach((v,x)=>{
+
+            let barH =
+            (v/maxV)*(hc.height-10);
+
+            hx.fillRect(
+                x*(hc.width/256),
+                hc.height-barH,
+                hc.width/256,
+                barH
+            );
+
+        });
+
+    });
+
 }
- 
-// Terapkan filter
-function applyFilter(type) {
-if(!origImageData){alert("Upload gambar terlebih dahulu!");return;}
-let src = origImageData.data;
-let w = origCanvas.width, h = origCanvas.height;
-let out = new ImageData(new Uint8ClampedArray(src), w, h);
-let d = out.data;
-document.getElementById("filterName").textContent = type;
-if(type==="original") { filtCtx.putImageData(origImageData,0,0);
-drawHistogram(origImageData); return; }
-if(type==="grayscale") {
-for(let i=0;i<d.length;i+=4){
-let g=0.299*d[i]+0.587*d[i+1]+0.114*d[i+2];
-d[i]=d[i+1]=d[i+2]=g;
-}
-} else if(type==="invert") {
-for(let i=0;i<d.length;i+=4){
-d[i]=255-d[i]; d[i+1]=255-d[i+1]; d[i+2]=255-d[i+2];
-}
-} else if(type==="sepia") {
-for(let i=0;i<d.length;i+=4){
-let r=d[i],g=d[i+1],b=d[i+2];
-d[i] =Math.min(255,r*.393+g*.769+b*.189);
-d[i+1]=Math.min(255,r*.349+g*.686+b*.168);
-d[i+2]=Math.min(255,r*.272+g*.534+b*.131);
-}
-} else if(type==="brightness") {
-let v=parseInt(document.getElementById("brightnessSlider").value);
-document.getElementById("brightnessVal").textContent=v;
-for(let i=0;i<d.length;i+=4){
-d[i]=Math.min(255,Math.max(0,d[i]+v));
-d[i+1]=Math.min(255,Math.max(0,d[i+1]+v));
-d[i+2]=Math.min(255,Math.max(0,d[i+2]+v));
-}
-} else if(type==="contrast") {
-let v=parseInt(document.getElementById("contrastSlider").value);
-document.getElementById("contrastVal").textContent=v;
-let f=(259*(v+255))/(255*(259-v));
-for(let i=0;i<d.length;i+=4){
-d[i]=Math.min(255,Math.max(0,f*(d[i]-128)+128));
-d[i+1]=Math.min(255,Math.max(0,f*(d[i+1]-128)+128));
-d[i+2]=Math.min(255,Math.max(0,f*(d[i+2]-128)+128));
-}
-} else if(type==="blur") {
-let k=[1/9,1/9,1/9,1/9,1/9,1/9,1/9,1/9,1/9];
-let nd=convolve(Array.from(src),w,h,k);
-for(let i=0;i<d.length;i++) d[i]=nd[i];
-} else if(type==="edge") {
-// Grayscale dulu
-let g=new Uint8ClampedArray(src.length);
-for(let i=0;i<src.length;i+=4){
-let gv=0.299*src[i]+0.587*src[i+1]+0.114*src[i+2];
-g[i]=g[i+1]=g[i+2]=gv; g[i+3]=255;
-}
-let k=[-1,-1,-1,-1,8,-1,-1,-1,-1];
-let nd=convolve(Array.from(g),w,h,k);
-for(let i=0;i<d.length;i++) d[i]=nd[i];
-} else if(type==="emboss") {
-let k=[-2,-1,0,-1,1,1,0,1,2];
-let nd=convolve(Array.from(src),w,h,k);
-for(let i=0;i<d.length;i++) d[i]=nd[i];
-} else if(type==="sharpen") {
-let k=[0,-1,0,-1,5,-1,0,-1,0];
-let nd=convolve(Array.from(src),w,h,k);
-for(let i=0;i<d.length;i++) d[i]=nd[i];
-}
-filtCtx.putImageData(out,0,0);
-drawHistogram(out);
-}
- 
-// Histogram RGB
-function drawHistogram(imageData) {
-let hc = document.getElementById("histCanvas");
-let hx = hc.getContext("2d");
-let rH = new Array(256).fill(0);
-let gH = new Array(256).fill(0);
-let bH = new Array(256).fill(0);
-for(let i=0;i<imageData.data.length;i+=4){
-rH[imageData.data[i]]++;
-gH[imageData.data[i+1]]++;
-bH[imageData.data[i+2]]++;
-}
-let maxV=Math.max(...rH,...gH,...bH);
-hx.clearRect(0,0,hc.width,hc.height);
-hx.fillStyle="#f9f9f9"; hx.fillRect(0,0,hc.width,hc.height);
-[[rH,"rgba(220,50,50,0.6)"],[gH,"rgba(50,180,50,0.6)"],[bH,"rgba(50,100,220,0.6)"]].forEac
-h(([arr,col])=>{
-hx.fillStyle=col;
-arr.forEach((v,x)=>{
-let barH=(v/maxV)*(hc.height-10);
-hx.fillRect(x*(hc.width/256),hc.height-barH,hc.width/256,barH);
+
+// PIXEL INFO
+filtCanvas.addEventListener("mousemove", function(e){
+
+    let rect =
+    filtCanvas.getBoundingClientRect();
+
+    let scaleX =
+    filtCanvas.width/rect.width;
+
+    let scaleY =
+    filtCanvas.height/rect.height;
+
+    let x =
+    Math.floor((e.clientX-rect.left)*scaleX);
+
+    let y =
+    Math.floor((e.clientY-rect.top)*scaleY);
+
+    let px =
+    filtCtx.getImageData(x,y,1,1).data;
+
+    document.getElementById("pixelInfo").innerHTML =
+
+    "Posisi : (" + x + "," + y + ")" +
+
+    " | R : " + px[0] +
+
+    " | G : " + px[1] +
+
+    " | B : " + px[2];
+
 });
-});
-hx.fillStyle="#333"; hx.font="11px Arial";
-hx.fillText("0",2,hc.height-2);
-hx.fillText("128",hc.width/2-10,hc.height-2);
-hx.fillText("255",hc.width-22,hc.height-2);
-}
- 
-// Hover piksel info
-filtCanvas.addEventListener("mousemove", function(e) {
-let rect=filtCanvas.getBoundingClientRect();
-let scaleX=filtCanvas.width/rect.width;
-let scaleY=filtCanvas.height/rect.height;
-let x=Math.floor((e.clientX-rect.left)*scaleX);
-let y=Math.floor((e.clientY-rect.top)*scaleY);
-let px=filtCtx.getImageData(x,y,1,1).data;
-let info="Posisi:("+x+","+y+") | R:"+px[0]+" | G:"+px[1]+" | B:"+px[2];
-document.getElementById("pixelInfo").textContent = info;
-});
+
 </script>
-</body></html>
+
+</body>
+</html>

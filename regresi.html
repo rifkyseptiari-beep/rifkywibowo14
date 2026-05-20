@@ -2,195 +2,499 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Prediksi Harga Rumah - Regresi Linear</title>
+
 <style>
-body { font-family: Arial,sans-serif; max-width:960px;
-margin:0 auto; padding:20px; background:#f4f6f9; }
-h1 { color:#1a237e; text-align:center; }
-.card { background:white; border-radius:12px; padding:20px;
-margin-bottom:20px; box-shadow:0 2px 8px rgba(0,0,0,0.1); }
-canvas { width:100%; border:1px solid #ddd; border-radius:8px; }
-input[type=number] { padding:8px; border:2px solid #1a237e;
-border-radius:6px; font-size:15px; width:150px; }
-button { background:#1a237e; color:white; padding:10px 24px;
-border:none; border-radius:6px; cursor:pointer; font-size:15px; }
-.result { background:#f4f6f9; padding:14px; border-radius:8px;
-margin-top:12px; font-size:17px; font-weight:bold; color:#1a237e; }
-.metrics { display:flex; gap:15px; flex-wrap:wrap; margin-top:10px; }
-.metric-box { background:#f5f5f5; border-left:4px solid #1a237e;
-padding:10px 16px; border-radius:6px; flex:1; min-width:140px; }
-.metric-box .val { font-size:20px; font-weight:bold; color:#1a237e; }
-table { width:100%; border-collapse:collapse; font-size:13px; }
-th { background:#1a237e; color:white; padding:8px; }
-td { border:1px solid #ddd; padding:6px; text-align:center; }
-tr:nth-child(even) { background:#e0f2f1; }
+
+/* Reset */
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+/* Body */
+body{
+    font-family:"Times New Roman", serif;
+    background:#f4ecd8;
+    color:#3e2f1c;
+    padding:20px;
+}
+
+/* Navbar */
+.navbar{
+    background:#5c4033;
+    padding:15px;
+    border-radius:8px;
+    text-align:center;
+    margin-bottom:20px;
+}
+
+.navbar a{
+    color:white;
+    text-decoration:none;
+    font-size:18px;
+}
+
+.navbar a:hover{
+    text-decoration:underline;
+}
+
+/* Judul */
+h1{
+    text-align:center;
+    color:#5c4033;
+    margin-bottom:25px;
+}
+
+/* Card */
+.card{
+    background:#fffaf0;
+    border:2px solid #c2a27c;
+    border-radius:10px;
+    padding:20px;
+    margin-bottom:20px;
+
+    box-shadow:4px 4px 10px rgba(0,0,0,0.15);
+}
+
+/* Subjudul */
+h2{
+    color:#5c4033;
+    margin-bottom:15px;
+}
+
+/* Canvas */
+canvas{
+    width:100%;
+    border:2px solid #c2a27c;
+    border-radius:8px;
+    background:white;
+}
+
+/* Input */
+input[type=number]{
+    padding:8px;
+    border:2px solid #7b5e57;
+    border-radius:6px;
+    width:150px;
+    font-size:15px;
+}
+
+/* Button */
+button{
+    background:#5c4033;
+    color:white;
+    padding:10px 20px;
+    border:none;
+    border-radius:5px;
+    cursor:pointer;
+    font-size:15px;
+}
+
+button:hover{
+    background:#3e2f1c;
+}
+
+/* Result */
+.result{
+    background:#f3e5d0;
+    border-left:5px solid #5c4033;
+    padding:15px;
+    margin-top:15px;
+    border-radius:6px;
+
+    font-size:18px;
+    font-weight:bold;
+}
+
+/* Metrics */
+.metrics{
+    display:flex;
+    gap:15px;
+    flex-wrap:wrap;
+}
+
+.metric-box{
+    background:#f9f3e8;
+    border-left:5px solid #5c4033;
+    padding:12px;
+    border-radius:6px;
+    flex:1;
+    min-width:150px;
+}
+
+.metric-box .val{
+    font-size:22px;
+    font-weight:bold;
+    color:#5c4033;
+    margin-top:5px;
+}
+
+/* Table */
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:10px;
+}
+
+th{
+    background:#5c4033;
+    color:white;
+    padding:10px;
+}
+
+td{
+    border:1px solid #c2a27c;
+    padding:8px;
+    text-align:center;
+}
+
+tr:nth-child(even){
+    background:#f3e5d0;
+}
+
 </style>
 </head>
+
 <body>
 
-<nav class="navbar">
-        <a href="index.html" class="nav-item">Home</a>
-</nav>
+<!-- Navbar -->
+<div class="navbar">
+    <a href="index.html">Beranda</a>
+</div>
 
+<!-- Judul -->
 <h1>Prediksi Harga Rumah dengan Regresi Linear</h1>
- 
+
+<!-- Grafik -->
 <div class="card">
-<h2>Visualisasi Regresi</h2>
-<canvas id="chart" width="800" height="380"></canvas>
+
+    <h2>Visualisasi Regresi</h2>
+
+    <canvas id="chart" width="800" height="380"></canvas>
+
 </div>
- 
+
+<!-- Prediksi -->
 <div class="card">
-<h2>Prediksi Harga</h2>
-<label>Masukkan Luas Bangunan (m2):</label>&nbsp;
-<input type="number" id="inputLuas" value="80" min="10">&nbsp;
-<button onclick="predict()">Prediksi!</button>
-<div class="result" id="predResult"></div>
+
+    <h2>Prediksi Harga</h2>
+
+    <label>Masukkan Luas Bangunan (m²):</label><br><br>
+
+    <input type="number" id="inputLuas" value="80" min="10">
+
+    <button onclick="predict()">
+        Prediksi
+    </button>
+
+    <div class="result" id="predResult">
+        Hasil prediksi akan tampil di sini
+    </div>
+
 </div>
- 
+
+<!-- Evaluasi -->
 <div class="card">
-<h2>Evaluasi Model</h2>
-<div class="metrics" id="metrics"></div>
+
+    <h2>Evaluasi Model</h2>
+
+    <div class="metrics" id="metrics"></div>
+
 </div>
- 
+
+<!-- Dataset -->
 <div class="card">
-<h2>Dataset Latih</h2>
-<table id="dataTable"></table>
+
+    <h2>Dataset Latih</h2>
+
+    <table id="dataTable"></table>
+
 </div>
- 
+
 <script>
-// Dataset: [luas_m2, harga_juta_rp]
+
+// Dataset
 const data = [
-[36,250],[45,310],[54,380],[72,490],
-[90,580],[100,650],[120,780],[144,950],
-[160,1050],[200,1300]
+
+[36,250],
+[45,310],
+[54,380],
+[72,490],
+[90,580],
+[100,650],
+[120,780],
+[144,950],
+[160,1050],
+[200,1300]
+
 ];
- 
-// Hitung koefisien regresi linear (Least Squares)
-function linearRegression(data) {
-let n = data.length;
-let sx = data.reduce((s,d)=>s+d[0], 0);
-let sy = data.reduce((s,d)=>s+d[1], 0);
-let sxy= data.reduce((s,d)=>s+d[0]*d[1], 0);
-let sx2= data.reduce((s,d)=>s+d[0]*d[0], 0);
-let b = (n*sxy - sx*sy) / (n*sx2 - sx*sx);
-let a = (sy - b*sx) / n;
-return { a, b };
+
+// Regresi Linear
+function linearRegression(data){
+
+    let n = data.length;
+
+    let sx = data.reduce((s,d)=>s+d[0],0);
+    let sy = data.reduce((s,d)=>s+d[1],0);
+
+    let sxy = data.reduce((s,d)=>s+d[0]*d[1],0);
+
+    let sx2 = data.reduce((s,d)=>s+d[0]*d[0],0);
+
+    let b =
+    (n*sxy - sx*sy) /
+    (n*sx2 - sx*sx);
+
+    let a =
+    (sy - b*sx) / n;
+
+    return {a,b};
+
 }
- 
-// Evaluasi MSE dan R2
-function evaluate(data, a, b) {
-let yMean = data.reduce((s,d)=>s+d[1],0) / data.length;
-let ssRes = data.reduce((s,d)=>s+Math.pow(d[1]-(a+b*d[0]),2),0);
-let ssTot = data.reduce((s,d)=>s+Math.pow(d[1]-yMean,2),0);
-let mse = ssRes / data.length;
-let r2 = 1 - (ssRes/ssTot);
-return { mse, rmse: Math.sqrt(mse), r2 };
+
+// Evaluasi
+function evaluate(data,a,b){
+
+    let yMean =
+    data.reduce((s,d)=>s+d[1],0) / data.length;
+
+    let ssRes =
+    data.reduce((s,d)=>
+    s + Math.pow(d[1]-(a+b*d[0]),2),0);
+
+    let ssTot =
+    data.reduce((s,d)=>
+    s + Math.pow(d[1]-yMean,2),0);
+
+    let mse = ssRes / data.length;
+
+    let r2 = 1 - (ssRes/ssTot);
+
+    return {
+
+        mse,
+        rmse:Math.sqrt(mse),
+        r2
+
+    };
+
 }
- 
-// Gambar grafik di Canvas
-function drawChart(a, b) {
-let canvas = document.getElementById("chart");
-let ctx = canvas.getContext("2d");
-let W = canvas.width, H = canvas.height;
-let pad = 60;
-let xVals = data.map(d=>d[0]), yVals = data.map(d=>d[1]);
-let xMin=Math.min(...xVals)-10, xMax=Math.max(...xVals)+20;
-let yMin=0, yMax=Math.max(...yVals)+100;
-let sx = (x)=> pad + (x-xMin)/(xMax-xMin)*(W-2*pad);
-let sy = (y)=> H-pad - (y-yMin)/(yMax-yMin)*(H-2*pad);
-ctx.clearRect(0,0,W,H);
-// Background
-ctx.fillStyle="#fafafa"; ctx.fillRect(0,0,W,H);
-// Grid lines
-ctx.strokeStyle="#e0e0e0"; ctx.lineWidth=1;
-for(let i=0;i<=5;i++){
-let y=yMin+i*(yMax-yMin)/5;
-ctx.beginPath(); ctx.moveTo(pad,sy(y));
-ctx.lineTo(W-pad,sy(y)); ctx.stroke();
-ctx.fillStyle="#888"; ctx.font="11px Arial";
-ctx.fillText(Math.round(y),4,sy(y)+4);
+
+// Gambar Grafik
+function drawChart(a,b){
+
+    let canvas =
+    document.getElementById("chart");
+
+    let ctx =
+    canvas.getContext("2d");
+
+    let W = canvas.width;
+    let H = canvas.height;
+
+    let pad = 60;
+
+    let xVals = data.map(d=>d[0]);
+    let yVals = data.map(d=>d[1]);
+
+    let xMin = Math.min(...xVals)-10;
+    let xMax = Math.max(...xVals)+20;
+
+    let yMin = 0;
+    let yMax = Math.max(...yVals)+100;
+
+    let sx = (x)=>
+
+    pad +
+    (x-xMin)/(xMax-xMin)*(W-2*pad);
+
+    let sy = (y)=>
+
+    H-pad -
+    (y-yMin)/(yMax-yMin)*(H-2*pad);
+
+    ctx.clearRect(0,0,W,H);
+
+    // Background
+    ctx.fillStyle="#fffaf0";
+    ctx.fillRect(0,0,W,H);
+
+    // Grid
+    ctx.strokeStyle="#ddd";
+
+    for(let i=0;i<=5;i++){
+
+        let y = yMin + i*(yMax-yMin)/5;
+
+        ctx.beginPath();
+
+        ctx.moveTo(pad,sy(y));
+        ctx.lineTo(W-pad,sy(y));
+
+        ctx.stroke();
+
+    }
+
+    // Axis
+    ctx.strokeStyle="#5c4033";
+    ctx.lineWidth=2;
+
+    ctx.beginPath();
+
+    ctx.moveTo(pad,pad);
+    ctx.lineTo(pad,H-pad);
+    ctx.lineTo(W-pad,H-pad);
+
+    ctx.stroke();
+
+    // Garis regresi
+    ctx.strokeStyle="#8b5e3c";
+    ctx.lineWidth=3;
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+        sx(xMin),
+        sy(a+b*xMin)
+    );
+
+    ctx.lineTo(
+        sx(xMax),
+        sy(a+b*xMax)
+    );
+
+    ctx.stroke();
+
+    // Titik data
+    data.forEach(d=>{
+
+        ctx.beginPath();
+
+        ctx.arc(
+            sx(d[0]),
+            sy(d[1]),
+            6,
+            0,
+            Math.PI*2
+        );
+
+        ctx.fillStyle="#5c4033";
+
+        ctx.fill();
+
+    });
+
 }
-// Axes
-ctx.strokeStyle="#333"; ctx.lineWidth=2;
-ctx.beginPath();
-ctx.moveTo(pad,pad); ctx.lineTo(pad,H-pad);
-ctx.lineTo(W-pad,H-pad); ctx.stroke();
-// Axis labels
-ctx.fillStyle="#004d40"; ctx.font="bold 12px Arial";
-ctx.fillText("Luas (m2)", W/2-30, H-10);
-ctx.save(); ctx.translate(14,H/2);
-ctx.rotate(-Math.PI/2);
-ctx.fillText("Harga (Juta Rp)", -50, 0); ctx.restore();
-// Regression line
-ctx.strokeStyle="#004d40"; ctx.lineWidth=2.5;
-ctx.beginPath();
-ctx.moveTo(sx(xMin), sy(a+b*xMin));
-ctx.lineTo(sx(xMax), sy(a+b*xMax)); ctx.stroke();
-// Data points
-data.forEach(d=>{
-ctx.beginPath();
-ctx.arc(sx(d[0]), sy(d[1]), 7, 0, Math.PI*2);
-ctx.fillStyle="#00897b"; ctx.fill();
-ctx.strokeStyle="white"; ctx.lineWidth=2; ctx.stroke();
-});
-// X axis ticks
-ctx.fillStyle="#555"; ctx.font="11px Arial";
-for(let i=0;i<=5;i++){
-let x=xMin+i*(xMax-xMin)/5;
-ctx.fillText(Math.round(x), sx(x)-10, H-pad+15);
-}
-}
- 
+
+// Model
 const reg = linearRegression(data);
-const ev = evaluate(data, reg.a, reg.b);
- 
+
+const ev = evaluate(
+    data,
+    reg.a,
+    reg.b
+);
+
 // Prediksi
-function predict() {
-let luas = parseFloat(document.getElementById("inputLuas").value);
-if(isNaN(luas)||luas<=0){alert("Masukkan luas yang valid!");return;}
-let harga = reg.a + reg.b * luas;
-let txt = "Prediksi: Luas " + luas + " m2 = ";
-txt += "Rp " + harga.toFixed(0) + " Juta";
-txt += " | Y = " + reg.a.toFixed(2) + " + " + reg.b.toFixed(2) + " * " + luas;
-document.getElementById("predResult").innerHTML = txt;
+function predict(){
+
+    let luas = parseFloat(
+        document.getElementById("inputLuas").value
+    );
+
+    if(isNaN(luas) || luas <= 0){
+
+        alert("Masukkan luas yang valid!");
+
+        return;
+
+    }
+
+    let harga =
+    reg.a + reg.b * luas;
+
+    document.getElementById("predResult").innerHTML =
+
+    "Prediksi harga rumah dengan luas <b>" +
+    luas +
+    " m²</b> adalah <b>Rp " +
+    harga.toFixed(0) +
+    " Juta</b>";
+
 }
- 
-// Tampilkan metrik
-document.getElementById("metrics").innerHTML = `
+
+// Metrik
+document.getElementById("metrics").innerHTML =
+
+`
 <div class="metric-box">
-<div>Slope (b)</div>
-<div class="val">${reg.b.toFixed(4)}</div>
+    <div>Slope (b)</div>
+    <div class="val">${reg.b.toFixed(4)}</div>
 </div>
+
 <div class="metric-box">
-<div>Intercept (a)</div>
-<div class="val">${reg.a.toFixed(4)}</div>
+    <div>Intercept (a)</div>
+    <div class="val">${reg.a.toFixed(4)}</div>
 </div>
+
 <div class="metric-box">
-<div>MSE</div>
-<div class="val">${ev.mse.toFixed(2)}</div>
+    <div>MSE</div>
+    <div class="val">${ev.mse.toFixed(2)}</div>
 </div>
+
 <div class="metric-box">
-<div>RMSE</div>
-<div class="val">${ev.rmse.toFixed(2)}</div>
+    <div>RMSE</div>
+    <div class="val">${ev.rmse.toFixed(2)}</div>
 </div>
+
 <div class="metric-box">
-<div>R-Squared (R2)</div>
-<div class="val">${(ev.r2*100).toFixed(2)}%</div>
-</div>`;
- 
-// Tabel dataset + nilai prediksi
-let tHtml = "<tr><th>No</th><th>Luas (m2)</th>"
-+ "<th>Harga Aktual</th><th>Harga Prediksi</th><th>Error</th></tr>";
+    <div>R²</div>
+    <div class="val">${(ev.r2*100).toFixed(2)}%</div>
+</div>
+`;
+
+// Tabel
+let tHtml =
+
+"<tr>" +
+"<th>No</th>" +
+"<th>Luas</th>" +
+"<th>Harga Aktual</th>" +
+"<th>Prediksi</th>" +
+"<th>Error</th>" +
+"</tr>";
+
 data.forEach((d,i)=>{
-let pred = reg.a + reg.b*d[0];
-let error = Math.abs(d[1]-pred);
-tHtml += `<tr><td>${i+1}</td><td>${d[0]}</td>
-<td>${d[1]}</td><td>${pred.toFixed(1)}</td>
-<td>${error.toFixed(1)}</td></tr>`;
+
+    let pred =
+    reg.a + reg.b*d[0];
+
+    let error =
+    Math.abs(d[1]-pred);
+
+    tHtml +=
+
+    `<tr>
+        <td>${i+1}</td>
+        <td>${d[0]}</td>
+        <td>${d[1]}</td>
+        <td>${pred.toFixed(1)}</td>
+        <td>${error.toFixed(1)}</td>
+    </tr>`;
+
 });
-document.getElementById("dataTable").innerHTML = tHtml;
- 
+
+document.getElementById("dataTable").innerHTML =
+tHtml;
+
+// Gambar chart
 drawChart(reg.a, reg.b);
+
 </script>
+
 </body>
 </html>

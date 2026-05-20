@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Deteksi Warna & Gerakan</title>
+
+<style>
+
+/* RESET */
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+/* BODY */
+body{
+    font-family:"Times New Roman", serif;
+    background:#f4ecd8;
+    color:#3e2f1c;
+    padding:20px;
+}
+
+/* CONTAINER */
+.container{
+    max-width:1100px;
+    margin:auto;
+}
+
+/* NAVBAR */
+.navbar{
+    background:#5c4033;
+    padding:15px;
+    border-radius:8px;
+    text-align:center;
+    margin-bottom:20px;
+}
+
+.navbar a{
+    color:white;
+    text-decoration:none;
+    font-size:18px;
+}
+
+.navbar a:hover{
+    text-decoration:underline;
+}
+
+/* TITLE */
+.title{
+    text-align:center;
+    margin-bottom:20px;
+}
+
+.title h1{
+    font-size:38px;
+    color:#5c4033;
+    margin-bottom:10px;
+}
+
+.title p{
+    color:#6d4c41;
+    font-size:18px;
+}
+
+/* VIDEO BOX */
+.video-box{
+    background:#fffaf0;
+    border:2px solid #c2a27c;
+    border-radius:12px;
+    padding:15px;
+
+    box-shadow:4px 4px 10px rgba(0,0,0,0.15);
+}
+
+canvas{
+    width:100%;
+    border-radius:10px;
+    border:2px solid #c2a27c;
+    background:black;
+}
+
+/* INFO PANEL */
+.info-panel{
+    margin-top:20px;
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:15px;
+}
+
+/* CARD */
+.card{
+    background:#fffaf0;
+    border:2px solid #c2a27c;
+    border-radius:10px;
+    padding:20px;
+    text-align:center;
+
+    box-shadow:4px 4px 10px rgba(0,0,0,0.15);
+}
+
+.card h2{
+    margin-bottom:10px;
+    color:#5c4033;
+}
+
+.value{
+    font-size:30px;
+    font-weight:bold;
+}
+
+/* COLORS */
+.red{
+    color:#b71c1c;
+}
+
+.green{
+    color:#1b5e20;
+}
+
+.blue{
+    color:#0d47a1;
+}
+
+/* FOOTER */
+.footer{
+    text-align:center;
+    margin-top:25px;
+    color:#6d4c41;
+    font-size:15px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- NAVBAR -->
+    <div class="navbar">
+        <a href="index.html">Beranda</a>
+    </div>
+
+    <!-- TITLE -->
+    <div class="title">
+
+        <h1>Deteksi Warna & Gerakan</h1>
+
+
+    </div>
+
+    <!-- VIDEO -->
+    <div class="video-box">
+
+        <video
+            id="video"
+            autoplay
+            hidden
+        ></video>
+
+        <canvas
+            id="canvas"
+            width="900"
+            height="500"
+        ></canvas>
+
+    </div>
+
+    <!-- INFO -->
+    <div class="info-panel">
+
+        <div class="card">
+
+            <h2>Status Kamera</h2>
+
+            <div
+                class="value blue"
+                id="cameraStatus"
+            >
+                AKTIF
+            </div>
+
+        </div>
+
+        <div class="card">
+
+            <h2>Deteksi Warna</h2>
+
+            <div
+                class="value red"
+                id="colorCount"
+            >
+                0
+            </div>
+
+        </div>
+
+        <div class="card">
+
+            <h2>Deteksi Gerakan</h2>
+
+            <div
+                class="value green"
+                id="motionCount"
+            >
+                0
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+
+        © Rifky Septiari Wibowo
+
+    </div>
+
+</div>
+
+<script>
+
+// ================= KONSTANTA =================
+
+const MIN_AREA = 100;
+
+const MIN_MOTION_AREA = 150;
+
+const MOTION_THRESHOLD = 80;
+
+// ================= ELEMENT =================
+
+const video =
+document.getElementById("video");
+
+const canvas =
+document.getElementById("canvas");
+
+const ctx =
+canvas.getContext("2d");
+
+const colorCount =
+document.getElementById("colorCount");
+
+const motionCount =
+document.getElementById("motionCount");
+
+let prevFrame = null;
+
+// ================= AKSES KAMERA =================
+
+navigator.mediaDevices.getUserMedia({
+    video:true
+})
+
+.then(stream=>{
+
+    video.srcObject = stream;
+
+    requestAnimationFrame(processFrame);
+
+})
+
+.catch(err=>{
+
+    alert("Kamera gagal diakses");
+
+    console.log(err);
+
+});
+
+// ================= DETEKSI WARNA =================
+
+function detectColor(
+    imageData,
+    rMin,rMax,
+    gMin,gMax,
+    bMin,bMax
+){
+
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -1;
+    let maxY = -1;
+
+    let count = 0;
+
+    let w = imageData.width;
+
+    let d = imageData.data;
+
+    for(let i=0;i<d.length;i+=4){
+
+        let r = d[i];
+        let g = d[i+1];
+        let b = d[i+2];
+
+        if(
+            r>=rMin && r<=rMax &&
+            g>=gMin && g<=gMax &&
+            b>=bMin && b<=bMax
+        ){
+
+            let px = (i/4)%w;
+
+            let py =
+            Math.floor((i/4)/w);
+
+            minX = Math.min(minX,px);
+            minY = Math.min(minY,py);
+
+            maxX = Math.max(maxX,px);
+            maxY = Math.max(maxY,py);
+
+            count++;
+        }
+    }
+
+    if(count < MIN_AREA)
+        return null;
+
+    return{
+
+        x:minX,
+        y:minY,
+
+        w:maxX-minX,
+        h:maxY-minY,
+
+        pixels:count
+    };
+}
+
+// ================= DETEKSI GERAK =================
+
+function detectMotion(
+    currFrame,
+    prevFrame
+){
+
+    let d1 = currFrame.data;
+
+    let d2 = prevFrame.data;
+
+    let minX = Infinity;
+    let minY = Infinity;
+
+    let maxX = -1;
+    let maxY = -1;
+
+    let count = 0;
+
+    let w = currFrame.width;
+
+    for(let i=0;i<d1.length;i+=4){
+
+        let diff =
+
+            Math.abs(d1[i]-d2[i]) +
+
+            Math.abs(d1[i+1]-d2[i+1]) +
+
+            Math.abs(d1[i+2]-d2[i+2]);
+
+        if(diff > MOTION_THRESHOLD){
+
+            let px = (i/4)%w;
+
+            let py =
+            Math.floor((i/4)/w);
+
+            minX = Math.min(minX,px);
+            minY = Math.min(minY,py);
+
+            maxX = Math.max(maxX,px);
+            maxY = Math.max(maxY,py);
+
+            count++;
+        }
+    }
+
+    if(count < MIN_MOTION_AREA)
+        return null;
+
+    return{
+
+        x:minX,
+        y:minY,
+
+        w:maxX-minX,
+        h:maxY-minY,
+
+        pixels:count
+    };
+}
+
+// ================= BOUNDING BOX =================
+
+function drawBoundingBox(
+    ctx,
+    bbox,
+    label,
+    color
+){
+
+    ctx.strokeStyle = color;
+
+    ctx.lineWidth = 4;
+
+    ctx.strokeRect(
+        bbox.x,
+        bbox.y,
+        bbox.w,
+        bbox.h
+    );
+
+    ctx.fillStyle = color;
+
+    ctx.font =
+    "bold 18px Times New Roman";
+
+    ctx.fillText(
+
+        label +
+        " (" +
+        bbox.pixels +
+        " px)",
+
+        bbox.x + 5,
+
+        bbox.y - 10
+    );
+}
+
+// ================= FRAME PROCESS =================
+
+function processFrame(){
+
+    ctx.drawImage(
+        video,
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+    let frame =
+    ctx.getImageData(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+    // DETEKSI MERAH
+
+    let redBox = detectColor(
+
+        frame,
+
+        150,255,
+        0,120,
+        0,120
+
+    );
+
+    if(redBox){
+
+        drawBoundingBox(
+
+            ctx,
+
+            redBox,
+
+            "WARNA MERAH",
+
+            "#b71c1c"
+        );
+
+        colorCount.innerText =
+        redBox.pixels;
+
+    }else{
+
+        colorCount.innerText = 0;
+    }
+
+    // DETEKSI GERAK
+
+    if(prevFrame){
+
+        let motionBox =
+        detectMotion(
+            frame,
+            prevFrame
+        );
+
+        if(motionBox){
+
+            drawBoundingBox(
+
+                ctx,
+
+                motionBox,
+
+                "GERAK",
+
+                "#1b5e20"
+            );
+
+            motionCount.innerText =
+            motionBox.pixels;
+
+        }else{
+
+            motionCount.innerText = 0;
+        }
+    }
+
+    prevFrame = frame;
+
+    requestAnimationFrame(
+        processFrame
+    );
+}
+
+</script>
+
+</body>
+</html>

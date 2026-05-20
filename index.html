@@ -3,80 +3,133 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Beranda Sederhana</title>
+
+<title>Praktikum AI</title>
 
 <style>
-body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    background: #f4f6f9;
+
+/* Reset */
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+/* Body */
+body{
+    font-family: "Times New Roman", serif;
+    background:#f4ecd8;
+    color:#3e2f1c;
 }
 
 /* Navbar */
-.navbar {
-    background: #1a237e;
-    padding: 15px;
-    color: white;
-    text-align: center;
-    font-size: 20px;
+.navbar{
+    background:#5c4033;
+    color:#fdf6e3;
+    text-align:center;
+    padding:20px;
+    font-size:28px;
+    font-weight:bold;
+    border-bottom:4px solid #3e2f1c;
 }
 
 /* Menu */
-.menu {
-    display: flex;
-    justify-content: center;
-    background: #283593;
+.menu{
+    background:#7b5e57;
+    text-align:center;
+    padding:12px;
 }
 
-.menu a {
-    color: white;
-    padding: 12px 20px;
-    text-decoration: none;
+.menu a{
+    color:white;
+    text-decoration:none;
+    margin:0 20px;
+    font-size:18px;
 }
 
-.menu a:hover {
-    background: #3949ab;
+.menu a:hover{
+    text-decoration:underline;
 }
 
 /* Hero */
-.hero {
-    text-align: center;
-    padding: 60px 20px;
-    background: #e8eaf6;
+.hero{
+    text-align:center;
+    padding:70px 20px;
+    background:#ede0c8;
+    border-bottom:2px solid #b08968;
 }
 
-.hero h1 {
-    color: #1a237e;
+.hero h1{
+    font-size:42px;
+    margin-bottom:15px;
+    color:#5c4033;
 }
 
-.hero p {
-    font-size: 18px;
+.hero p{
+    font-size:20px;
+    color:#6d4c41;
 }
 
-/* Content */
-.container {
-    padding: 30px;
-    text-align: center;
+/* Container */
+.container{
+    width:90%;
+    max-width:1100px;
+    margin:40px auto;
+
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+    gap:25px;
 }
 
-.card {
-    display: inline-block;
-    width: 250px;
-    margin: 15px;
-    padding: 20px;
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+/* Card */
+.card{
+    background:#fffaf0;
+    border:2px solid #c2a27c;
+    border-radius:10px;
+    padding:25px;
+    text-align:center;
+
+    box-shadow:4px 4px 10px rgba(0,0,0,0.15);
+
+    transition:0.3s;
+}
+
+.card:hover{
+    transform:scale(1.03);
+}
+
+/* Card Title */
+.card h3{
+    color:#5c4033;
+    margin-bottom:20px;
+    font-size:24px;
+}
+
+/* Button */
+.card a{
+    display:inline-block;
+    text-decoration:none;
+    background:#5c4033;
+    color:white;
+    padding:10px 18px;
+    border-radius:5px;
+    font-size:16px;
+}
+
+.card a:hover{
+    background:#3e2f1c;
 }
 
 /* Footer */
-.footer {
-    background: #1a237e;
-    color: white;
-    text-align: center;
-    padding: 15px;
-    margin-top: 30px;
+.footer{
+    background:#5c4033;
+    color:#fdf6e3;
+    text-align:center;
+    padding:20px;
+    margin-top:40px;
+    border-top:4px solid #3e2f1c;
 }
+
 </style>
 </head>
 
@@ -90,34 +143,60 @@ body {
 <!-- Menu -->
 <div class="menu">
     <a href="#">Beranda</a>
+    <a href="#">Materi</a>
+    <a href="#">Kontak</a>
 </div>
 
-<!-- Hero Section -->
+<!-- Hero -->
 <div class="hero">
     <h1>Selamat Datang</h1>
 </div>
 
 <!-- Content -->
 <div class="container">
+
     <div class="card">
         <h3>TUGAS 1</h3>
-        <a href="knn.html">KLASIFIKASI DATA TABULAR</a>
+        <a href="knn.html">
+            Klasifikasi Data Tabular
+        </a>
     </div>
 
     <div class="card">
         <h3>TUGAS 2</h3>
-        <a href="regresi.html">REGRESI LINEAR</a>
+        <a href="regresi.html">
+            Regresi Linear
+        </a>
     </div>
 
     <div class="card">
         <h3>TUGAS 3</h3>
-        <a href="tugas3.html">PREDIKSI LINEAR</a>
+        <a href="tugas3.html">
+            Prediksi Linear
+        </a>
     </div>
-    
+
     <div class="card">
         <h3>TUGAS 4</h3>
-        <a href="citra.html">PENGOLAHAN CITRA</a>
+        <a href="citra.html">
+            Pengolahan Citra
+        </a>
     </div>
+
+    <div class="card">
+        <h3>TUGAS 5</h3>
+        <a href="deteksiobjek.html">
+            Deteksi Objek
+        </a>
+    </div>
+
+    <div class="card">
+        <h3>TUGAS 6</h3>
+        <a href="facerecognition.html">
+            Face Recognition
+        </a>
+    </div>
+
 </div>
 
 <!-- Footer -->
